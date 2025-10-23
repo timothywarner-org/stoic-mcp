@@ -8,6 +8,7 @@ import type { Quote, QuotesData } from './types.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const QUOTES_FILE = join(__dirname, '..', 'quotes.json');
+const QUOTES_SOURCE_DIR = join(__dirname, '..', 'quotes-source');
 
 // Theme keyword mapping for auto-detection
 const THEME_KEYWORDS: Record<string, string[]> = {
@@ -150,15 +151,24 @@ async function importQuotes(filePath: string): Promise<void> {
 const args = process.argv.slice(2);
 
 if (args.length === 0) {
-  console.error('Usage: node dist/import-quotes.js <filepath>');
+  console.error('Usage: npm run import <filename>');
+  console.error('');
+  console.error('Files should be placed in: local/quotes-source/');
   console.error('');
   console.error('Expected file format (one quote per line):');
   console.error('"Quote text here" - Author Name, Source Book');
   console.error('');
   console.error('Example:');
   console.error('"The best time to plant a tree was 20 years ago. The second best time is now." - Chinese Proverb, Traditional Wisdom');
+  console.error('');
+  console.error('Example usage:');
+  console.error('  npm run import my-quotes.txt');
   process.exit(1);
 }
 
-const filePath = args[0];
+// Resolve file path from quotes-source directory
+const fileName = args[0];
+const filePath = join(QUOTES_SOURCE_DIR, fileName);
+
+console.log(`Reading from: ${filePath}`);
 importQuotes(filePath);

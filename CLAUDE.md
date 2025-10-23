@@ -94,24 +94,61 @@ Add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "stoic-mcp-local": {
+    "stoic-mcp": {
       "command": "node",
-      "args": ["/absolute/path/to/stoic-mcp/local/dist/index.js"],
-      "env": {
-        "DEEPSEEK_API_KEY": "your_key_here"
-      }
+      "args": [
+        "C:\\github\\stoic-mcp\\local\\dist\\index.js"
+      ]
     }
   }
 }
 ```
 
+Notes:
+- DEEPSEEK_API_KEY is inherited from system environment variables
+- Update the path to match your installation location
+- Use double backslashes on Windows
+
 ## Data Storage
 
-The local implementation uses `local/quotes.json` for persistence. Each quote has:
-- Auto-incrementing string ID
-- Text, author, source, and theme
-- Boolean favorite flag
-- Personal notes field
+The local implementation uses `local/quotes.json` for persistence.
+
+### Schema v1.0.0
+
+Root structure:
+```typescript
+{
+  metadata: {
+    lastId: number;        // Highest quote ID, used for ID generation
+    version: string;       // Schema version (currently "1.0.0")
+    lastModified: string;  // ISO timestamp, auto-updated on writes
+  },
+  quotes: Quote[]
+}
+```
+
+Each quote has:
+- `id`: Numeric auto-incrementing ID (generated from metadata.lastId)
+- `text`: Quote text
+- `author`: Author name
+- `source`: Source book/work
+- `theme`: Theme category (string)
+- `favorite`: Boolean flag
+- `notes`: Personal notes (string | null)
+- `createdAt`: ISO timestamp when quote was added
+- `addedBy`: Source of quote ("seed", "user", "manual")
+
+### Bulk Import Utility
+
+The `import-quotes.ts` utility allows bulk importing quotes:
+- Source location: `local/quotes-source/` (all import files must be placed here)
+- Run with: `npm run import <filename.txt>`
+- Format: `"Quote text" - Author, Source` (one per line)
+- Auto-detects themes from keywords (18 theme categories)
+- Atomically appends to quotes.json
+- Updates metadata.lastId and metadata.lastModified
+- See `local/IMPORT_GUIDE.md` for full documentation
+- Example: `npm run import sample-import.txt`
 
 The Azure implementation will migrate this to Cosmos DB with similar schema.
 

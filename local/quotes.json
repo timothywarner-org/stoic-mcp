@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "lastId": 20,
+    "lastId": 25,
     "version": "1.0.0",
-    "lastModified": "2025-10-23T19:44:31.298Z"
+    "lastModified": "2025-10-23T19:58:03.584Z"
   },
   "quotes": [
     {
@@ -224,6 +224,61 @@
       "notes": null,
       "createdAt": "2025-10-23T19:44:31.298Z",
       "addedBy": "seed"
+    },
+    {
+      "text": "The impediment to action advances action. What stands in the way becomes the way.",
+      "author": "Marcus Aurelius",
+      "source": "Meditations",
+      "theme": "action",
+      "id": 21,
+      "favorite": false,
+      "notes": null,
+      "createdAt": "2025-10-23T19:51:47.559Z",
+      "addedBy": "manual"
+    },
+    {
+      "text": "If you are distressed by anything external, the pain is not due to the thing itself, but to your estimate of it; and this you have the power to revoke at any moment.",
+      "author": "Marcus Aurelius",
+      "source": "Meditations",
+      "theme": "anxiety",
+      "id": 22,
+      "favorite": false,
+      "notes": null,
+      "createdAt": "2025-10-23T19:51:47.559Z",
+      "addedBy": "manual"
+    },
+    {
+      "text": "Man is not worried by real problems so much as by his imagined anxieties about real problems.",
+      "author": "Epictetus",
+      "source": "Discourses",
+      "theme": "wisdom",
+      "id": 23,
+      "favorite": false,
+      "notes": null,
+      "createdAt": "2025-10-23T19:51:47.559Z",
+      "addedBy": "manual"
+    },
+    {
+      "text": "The whole future lies in uncertainty: live immediately.",
+      "author": "Seneca",
+      "source": "Letters from a Stoic",
+      "theme": "wisdom",
+      "id": 24,
+      "favorite": false,
+      "notes": null,
+      "createdAt": "2025-10-23T19:58:03.584Z",
+      "addedBy": "manual"
+    },
+    {
+      "text": "To be calm is the highest achievement of the self.",
+      "author": "Zen Proverb",
+      "source": "Traditional Wisdom",
+      "theme": "wisdom",
+      "id": 25,
+      "favorite": false,
+      "notes": null,
+      "createdAt": "2025-10-23T19:58:03.584Z",
+      "addedBy": "manual"
     }
   ]
 }

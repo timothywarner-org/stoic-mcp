@@ -7,7 +7,12 @@
       "Bash(npm start)",
       "Read(//c/Users/timot/AppData/Roaming/Claude/**)",
       "Bash(cat:*)",
-      "Bash(python -m json.tool:*)"
+      "Bash(python -m json.tool:*)",
+      "Bash(npm run import:*)",
+      "Bash(timeout 3 npm start)",
+      "Bash(node -e:*)",
+      "Bash(npm run clean:*)",
+      "Bash(timeout 5 node:*)"
     ],
     "deny": [],
     "ask": []

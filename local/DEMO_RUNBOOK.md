@@ -16,25 +16,25 @@ A hands-on guide to showcase all features of the Stoic MCP server.
    {
      "mcpServers": {
        "stoic-mcp": {
-         "command": "npm",
-         "args": ["start"],
-         "cwd": "C:\\github\\stoic-mcp\\local"
+         "command": "node",
+         "args": [
+           "C:\\github\\stoic-mcp\\local\\dist\\index.js"
+         ]
        }
      }
    }
    ```
 
+   **Important:** Update the path to match your installation location.
+
 2. **Set Environment Variable** (if not already set)
 
    ```bash
-   # Windows (System Properties)
+   # Windows (System Properties > Environment Variables)
    DEEPSEEK_API_KEY=your_key_here
-
-   # Or in config (alternative)
-   "env": {
-     "DEEPSEEK_API_KEY": "your_key_here"
-   }
    ```
+
+   The environment variable is automatically inherited by Claude Desktop.
 
 3. **Restart Claude Desktop**
 

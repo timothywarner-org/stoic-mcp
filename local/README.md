@@ -42,23 +42,27 @@ npm start
 
 ### 4. Configure in Claude Desktop
 
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+Add to your Claude Desktop config:
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
-    "stoic-mcp-local": {
+    "stoic-mcp": {
       "command": "node",
       "args": [
-        "/absolute/path/to/stoic-mcp/local/dist/index.js"
-      ],
-      "env": {
-        "DEEPSEEK_API_KEY": "your_key_here"
-      }
+        "C:\\github\\stoic-mcp\\local\\dist\\index.js"
+      ]
     }
   }
 }
 ```
+
+**Notes:**
+- Update the path to match your installation location
+- Use double backslashes on Windows (e.g., `C:\\github\\...`)
+- DEEPSEEK_API_KEY is inherited from system environment variables
 
 ## Available Tools
 
