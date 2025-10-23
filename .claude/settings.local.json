@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(npm install)",
+      "Bash(echo:*)",
+      "Bash(npm start)",
+      "Read(//c/Users/timot/AppData/Roaming/Claude/**)",
+      "Bash(cat:*)",
+      "Bash(python -m json.tool:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
