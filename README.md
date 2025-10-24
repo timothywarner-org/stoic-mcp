@@ -2,7 +2,7 @@
 
 **Model Context Protocol server delivering Stoic philosophy quotes with AI-powered explanations via DeepSeek API.**
 
-This monorepo demonstrates the architectural progression from local JSON storage to Azure Cosmos DB, perfect for O'Reilly Live Training sessions on MCP server development.
+This monorepo demonstrates the architectural progression from local JSON storage to Azure Cosmos DB, perfect for live training sessions on MCP server development.
 
 ## Project Structure
 
@@ -60,4 +60,4 @@ MIT
 
 ---
 
-*Built with ❤️ for O'Reilly Live Training by Tim Warner*
+*Built with ❤️ by Tim Warner*
