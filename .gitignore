@@ -4,6 +4,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# AI stuff
+.claude/
+CLAUDE.md
+
 # Environment variables
 .env
 .env.local
