@@ -1,15 +1,16 @@
 # Stoic MCP - Local Implementation
 
-Local Node.js MCP server using JSON file storage for Stoic philosophy quotes.
+Local Node.js MCP server using JSON file storage for Stoic philosophy quotes. This implementation demonstrates the Model Context Protocol (MCP) specification with a complete, production-ready server.
 
 ## Features
 
 - ✅ **CRUD Operations**: Full create, read, update, delete support
-- 📝 **JSON Storage**: Simple file-based persistence
-- 🤖 **AI Integration**: DeepSeek-powered quote explanations
+- 📝 **JSON Storage**: File-based persistence with metadata tracking
+- 🤖 **AI Integration**: DeepSeek-powered quote explanations and generation
 - ⭐ **Favorites**: Mark quotes that resonate
 - 🔍 **Search**: Filter by author, theme, or keywords
-- 📝 **Personal Notes**: Add reflections to quotes
+- 📝 **Personal Notes**: Add personal reflections to quotes
+- 📥 **Bulk Import**: Import quotes from text files with automatic theme detection
 
 ## Prerequisites
 
@@ -128,23 +129,70 @@ Use AI to generate new Stoic-style quote.
 
 ## Data Structure
 
-Quotes are stored in `quotes.json`:
+Quotes are stored in `quotes.json` with metadata tracking:
 
 ```json
 {
+  "metadata": {
+    "lastId": 25,
+    "version": "1.0.0",
+    "lastModified": "2025-10-23T19:58:03.584Z"
+  },
   "quotes": [
     {
-      "id": "1",
-      "text": "Quote text here",
+      "id": 1,
+      "text": "You have power over your mind - not outside events.",
       "author": "Marcus Aurelius",
       "source": "Meditations",
       "theme": "control",
       "favorite": false,
-      "notes": ""
+      "notes": null,
+      "createdAt": "2025-10-23T19:44:31.298Z",
+      "addedBy": "seed"
     }
   ]
 }
 ```
+
+### Schema Details
+
+**Metadata:**
+- `lastId`: Auto-incrementing ID counter for new quotes
+- `version`: Schema version (currently "1.0.0")
+- `lastModified`: ISO timestamp of last modification
+
+**Quote Properties:**
+- `id`: Numeric ID (auto-generated from metadata.lastId)
+- `text`: Quote text
+- `author`: Author name
+- `source`: Source book or work
+- `theme`: Theme category
+- `favorite`: Boolean favorite flag
+- `notes`: Personal notes (string | null)
+- `createdAt`: ISO timestamp when quote was added
+- `addedBy`: Source ("seed", "user", "manual")
+
+## Bulk Import
+
+Import multiple quotes from a text file:
+
+```bash
+npm run import <filename.txt>
+```
+
+**Format:** Place your import file in `local/quotes-source/` directory:
+
+```
+"Quote text here" - Author Name, Source Book
+"Another quote" - Author Name, Source Book
+```
+
+**Features:**
+- Automatic theme detection from 18 predefined categories
+- Atomic file operations (all or nothing)
+- Metadata auto-updates (lastId and lastModified)
+
+See `local/IMPORT_GUIDE.md` for complete documentation.
 
 ## Development
 
@@ -152,19 +200,47 @@ Quotes are stored in `quotes.json`:
 # Watch mode for development
 npm run watch
 
+# Development mode (build + run)
+npm run dev
+
 # Clean build artifacts
 npm run clean
 ```
+
+## Architecture
+
+This implementation follows the official MCP specification:
+
+**Core Components:**
+- `src/index.ts` - MCP server entry point with tool registration
+- `src/storage.ts` - File-based storage layer with CRUD operations
+- `src/deepseek.ts` - AI integration for explanations and generation
+- `src/types.ts` - TypeScript interfaces for type safety
+
+**Communication:**
+- Uses `StdioServerTransport` for Claude Desktop integration
+- Handles `ListToolsRequestSchema` for tool discovery
+- Handles `CallToolRequestSchema` for tool execution
+
+**9 Available Tools:** get_random_quote, search_quotes, add_quote, get_quote_explanation, toggle_favorite, get_favorites, update_quote_notes, delete_quote, generate_quote
 
 ## Troubleshooting
 
 **Issue:** "DEEPSEEK_API_KEY not set" warning
 
-**Solution:** Ensure your `.env` file exists and contains your API key, or set it in Claude Desktop config.
+**Solution:** Ensure your `.env` file exists and contains your API key, or set it as a system environment variable.
 
 **Issue:** Quotes not persisting
 
 **Solution:** Check file permissions on `quotes.json` and ensure the path is correct.
+
+**Issue:** Server not appearing in Claude Desktop
+
+**Solution:**
+- Verify the path in `claude_desktop_config.json` points to `dist/index.js`
+- Ensure you've run `npm run build` first
+- Restart Claude Desktop after config changes
+- Check Claude Desktop logs for error messages
 
 ## Next Steps
 
