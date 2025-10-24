@@ -60,4 +60,4 @@ MIT
 
 ---
 
-*Built with ❤️ for O'Reilly Live Training by Tim Warner*
+*Built with ❤️ by Tim Warner*
