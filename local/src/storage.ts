@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import type { Quote, QuotesData, SearchParams } from './types.js';
+import type { Quote, QuotesData, SearchParams, QuoteStats } from './types.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -11,14 +11,26 @@ export class QuoteStorage {
   private async readQuotes(): Promise<QuotesData> {
     try {
       const data = await readFile(QUOTES_FILE, 'utf-8');
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+
+      // Ensure metadata has required fields
+      if (!parsed.metadata.categories) {
+        parsed.metadata.categories = [];
+      }
+      if (!parsed.metadata.authors) {
+        parsed.metadata.authors = [];
+      }
+
+      return parsed;
     } catch (error) {
       console.error('Error reading quotes file:', error);
       return {
         metadata: {
           lastId: 0,
-          version: '1.0.0',
-          lastModified: new Date().toISOString()
+          version: '2.0.0',
+          lastModified: new Date().toISOString(),
+          categories: [],
+          authors: []
         },
         quotes: []
       };
@@ -29,6 +41,19 @@ export class QuoteStorage {
     try {
       // Update lastModified timestamp
       data.metadata.lastModified = new Date().toISOString();
+
+      // Update metadata with unique categories and authors
+      const categories = new Set<string>();
+      const authors = new Set<string>();
+
+      data.quotes.forEach(quote => {
+        categories.add(quote.category);
+        authors.add(quote.author);
+      });
+
+      data.metadata.categories = Array.from(categories).sort();
+      data.metadata.authors = Array.from(authors).sort();
+
       await writeFile(QUOTES_FILE, JSON.stringify(data, null, 2), 'utf-8');
     } catch (error) {
       console.error('Error writing quotes file:', error);
@@ -49,15 +74,30 @@ export class QuoteStorage {
     let results = data.quotes;
 
     if (params.author) {
-      results = results.filter(q => 
+      results = results.filter(q =>
         q.author.toLowerCase().includes(params.author!.toLowerCase())
       );
     }
 
-    if (params.theme) {
-      results = results.filter(q => 
-        q.theme.toLowerCase() === params.theme!.toLowerCase()
+    if (params.category) {
+      results = results.filter(q =>
+        q.category.toLowerCase() === params.category!.toLowerCase()
       );
+    }
+
+    if (params.theme) {
+      results = results.filter(q =>
+        q.theme.toLowerCase().includes(params.theme!.toLowerCase())
+      );
+    }
+
+    if (params.tags && params.tags.length > 0) {
+      results = results.filter(q => {
+        if (!q.tags) return false;
+        return params.tags!.some(tag =>
+          q.tags!.some(qtag => qtag.toLowerCase().includes(tag.toLowerCase()))
+        );
+      });
     }
 
     if (params.query) {
@@ -65,7 +105,9 @@ export class QuoteStorage {
       results = results.filter(q =>
         q.text.toLowerCase().includes(searchLower) ||
         q.author.toLowerCase().includes(searchLower) ||
-        q.theme.toLowerCase().includes(searchLower)
+        q.theme.toLowerCase().includes(searchLower) ||
+        q.category.toLowerCase().includes(searchLower) ||
+        (q.tags && q.tags.some(tag => tag.toLowerCase().includes(searchLower)))
       );
     }
 
@@ -131,5 +173,69 @@ export class QuoteStorage {
     await this.writeQuotes(data);
 
     return quote;
+  }
+
+  async getStats(): Promise<QuoteStats> {
+    const data = await this.readQuotes();
+    const categoryCounts: Record<string, number> = {};
+    const authorCounts: Record<string, number> = {};
+    let favoriteCount = 0;
+
+    data.quotes.forEach(quote => {
+      // Count categories
+      categoryCounts[quote.category] = (categoryCounts[quote.category] || 0) + 1;
+
+      // Count authors
+      authorCounts[quote.author] = (authorCounts[quote.author] || 0) + 1;
+
+      // Count favorites
+      if (quote.favorite) favoriteCount++;
+    });
+
+    return {
+      totalQuotes: data.quotes.length,
+      favoriteCount,
+      categoryCounts,
+      authorCounts
+    };
+  }
+
+  async getQuoteById(id: number): Promise<Quote | null> {
+    const data = await this.readQuotes();
+    return data.quotes.find(q => q.id === id) || null;
+  }
+
+  async getRandomQuoteByCategory(category: string): Promise<Quote | null> {
+    const data = await this.readQuotes();
+    const categoryQuotes = data.quotes.filter(
+      q => q.category.toLowerCase() === category.toLowerCase()
+    );
+
+    if (categoryQuotes.length === 0) return null;
+
+    const randomIndex = Math.floor(Math.random() * categoryQuotes.length);
+    return categoryQuotes[randomIndex];
+  }
+
+  async getRandomQuoteByAuthor(author: string): Promise<Quote | null> {
+    const data = await this.readQuotes();
+    const authorQuotes = data.quotes.filter(
+      q => q.author.toLowerCase().includes(author.toLowerCase())
+    );
+
+    if (authorQuotes.length === 0) return null;
+
+    const randomIndex = Math.floor(Math.random() * authorQuotes.length);
+    return authorQuotes[randomIndex];
+  }
+
+  async listCategories(): Promise<string[]> {
+    const data = await this.readQuotes();
+    return data.metadata.categories;
+  }
+
+  async listAuthors(): Promise<string[]> {
+    const data = await this.readQuotes();
+    return data.metadata.authors;
   }
 }

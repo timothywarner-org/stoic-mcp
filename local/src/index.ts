@@ -14,8 +14,8 @@ const deepseek = new DeepSeekService();
 
 const server = new Server(
   {
-    name: 'stoic-mcp-local',
-    version: '1.0.0',
+    name: 'wisdom-mcp-local',
+    version: '2.0.0',
   },
   {
     capabilities: {
@@ -30,36 +30,106 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: 'get_random_quote',
-        description: 'Get a random Stoic quote for inspiration',
+        description: 'Get a random wisdom quote from any author for inspiration',
         inputSchema: {
           type: 'object',
           properties: {},
         },
       },
       {
+        name: 'get_random_quote_by_category',
+        description: 'Get a random quote from a specific category',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            category: {
+              type: 'string',
+              description: 'Category to get quote from (stoic, mindfulness, productivity, self-help, relationships)',
+            },
+          },
+          required: ['category'],
+        },
+      },
+      {
+        name: 'get_random_quote_by_author',
+        description: 'Get a random quote from a specific author',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            author: {
+              type: 'string',
+              description: 'Author name (e.g., "Marcus Aurelius", "Tara Brach", "David Allen")',
+            },
+          },
+          required: ['author'],
+        },
+      },
+      {
+        name: 'get_quote_by_id',
+        description: 'Get a specific quote by its ID',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            quote_id: {
+              type: 'string',
+              description: 'The ID of the quote',
+            },
+          },
+          required: ['quote_id'],
+        },
+      },
+      {
         name: 'search_quotes',
-        description: 'Search for quotes by author, theme, or keyword',
+        description: 'Search for quotes by keyword, author, category, theme, or tags',
         inputSchema: {
           type: 'object',
           properties: {
             query: {
               type: 'string',
-              description: 'Keyword to search in quote text, author, or theme',
+              description: 'Keyword to search in quote text, author, theme, category, or tags',
             },
             author: {
               type: 'string',
-              description: 'Filter by author name (e.g., "Marcus Aurelius", "Seneca", "Epictetus")',
+              description: 'Filter by author name',
+            },
+            category: {
+              type: 'string',
+              description: 'Filter by category (stoic, mindfulness, productivity, self-help, relationships)',
             },
             theme: {
               type: 'string',
-              description: 'Filter by theme (e.g., "control", "mindset", "courage")',
+              description: 'Filter by theme (e.g., "control", "awareness", "boundaries")',
             },
           },
         },
       },
       {
+        name: 'list_categories',
+        description: 'List all available quote categories in the collection',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'list_authors',
+        description: 'List all authors in the collection',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'get_stats',
+        description: 'Get statistics about the quote collection (total quotes, categories, authors, favorites)',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
         name: 'add_quote',
-        description: 'Add a new Stoic quote to the collection',
+        description: 'Add a new wisdom quote to the collection',
         inputSchema: {
           type: 'object',
           properties: {
@@ -75,17 +145,26 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: 'string',
               description: 'The source book or work',
             },
+            category: {
+              type: 'string',
+              description: 'Category (stoic, mindfulness, productivity, self-help, relationships)',
+            },
             theme: {
               type: 'string',
-              description: 'The main theme (e.g., "courage", "wisdom", "discipline")',
+              description: 'The main theme (e.g., "courage", "awareness", "boundaries")',
+            },
+            tags: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Optional tags for better searchability',
             },
           },
-          required: ['text', 'author', 'source', 'theme'],
+          required: ['text', 'author', 'source', 'category', 'theme'],
         },
       },
       {
         name: 'get_quote_explanation',
-        description: 'Get an AI-powered explanation of how to apply a quote to modern developer challenges',
+        description: 'Get an AI-powered explanation of how to apply a quote to modern life and work',
         inputSchema: {
           type: 'object',
           properties: {
@@ -95,6 +174,24 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: ['quote_id'],
+        },
+      },
+      {
+        name: 'generate_quote',
+        description: 'Use AI to generate a new quote on a specific theme in a particular style',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            theme: {
+              type: 'string',
+              description: 'The theme for the quote (e.g., "debugging", "work-life balance", "imposter syndrome")',
+            },
+            category: {
+              type: 'string',
+              description: 'Style category (stoic, mindfulness, productivity, self-help, relationships). Default: stoic',
+            },
+          },
+          required: ['theme'],
         },
       },
       {
@@ -151,23 +248,25 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['quote_id'],
         },
       },
-      {
-        name: 'generate_quote',
-        description: 'Use AI to generate a new Stoic-style quote on a specific theme',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            theme: {
-              type: 'string',
-              description: 'The theme for the quote (e.g., "debugging", "code review", "imposter syndrome")',
-            },
-          },
-          required: ['theme'],
-        },
-      },
     ],
   };
 });
+
+// Helper function to format a single quote
+function formatQuote(q: any): string {
+  let result = `"${q.text}"\n\n`;
+  result += `— ${q.author}, ${q.source}\n`;
+  result += `\nCategory: ${q.category}\n`;
+  result += `Theme: ${q.theme}\n`;
+  if (q.tags && q.tags.length > 0) {
+    result += `Tags: ${q.tags.join(', ')}\n`;
+  }
+  result += `ID: ${q.id}${q.favorite ? ' ⭐' : ''}`;
+  if (q.notes !== null) {
+    result += `\n\nYour notes: ${q.notes}`;
+  }
+  return result;
+}
 
 // Handle tool calls
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -183,12 +282,139 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         return {
+          content: [{ type: 'text', text: formatQuote(quote) }],
+        };
+      }
+
+      case 'get_random_quote_by_category': {
+        if (!args) {
+          return {
+            content: [{ type: 'text', text: 'Missing required arguments' }],
+            isError: true,
+          };
+        }
+        const quote = await storage.getRandomQuoteByCategory(args.category as string);
+        if (!quote) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `No quotes found in category "${args.category}". Use list_categories to see available categories.`,
+              },
+            ],
+          };
+        }
+        return {
+          content: [{ type: 'text', text: formatQuote(quote) }],
+        };
+      }
+
+      case 'get_random_quote_by_author': {
+        if (!args) {
+          return {
+            content: [{ type: 'text', text: 'Missing required arguments' }],
+            isError: true,
+          };
+        }
+        const quote = await storage.getRandomQuoteByAuthor(args.author as string);
+        if (!quote) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `No quotes found by author "${args.author}". Use list_authors to see available authors.`,
+              },
+            ],
+          };
+        }
+        return {
+          content: [{ type: 'text', text: formatQuote(quote) }],
+        };
+      }
+
+      case 'get_quote_by_id': {
+        if (!args) {
+          return {
+            content: [{ type: 'text', text: 'Missing required arguments' }],
+            isError: true,
+          };
+        }
+        const quote = await storage.getQuoteById(Number(args.quote_id));
+        if (!quote) {
+          return {
+            content: [{ type: 'text', text: `Quote with ID ${args.quote_id} not found` }],
+          };
+        }
+        return {
+          content: [{ type: 'text', text: formatQuote(quote) }],
+        };
+      }
+
+      case 'list_categories': {
+        const categories = await storage.listCategories();
+        if (categories.length === 0) {
+          return {
+            content: [{ type: 'text', text: 'No categories available yet' }],
+          };
+        }
+        const stats = await storage.getStats();
+        const formatted = categories
+          .map((cat) => `• ${cat} (${stats.categoryCounts[cat]} quotes)`)
+          .join('\n');
+        return {
           content: [
             {
               type: 'text',
-              text: `"${quote.text}"\n\n— ${quote.author}, ${quote.source}\n\nTheme: ${quote.theme}\nID: ${quote.id}${quote.favorite ? ' ⭐' : ''}${quote.notes !== null ? `\n\nYour notes: ${quote.notes}` : ''}`,
+              text: `Available categories:\n\n${formatted}`,
             },
           ],
+        };
+      }
+
+      case 'list_authors': {
+        const authors = await storage.listAuthors();
+        if (authors.length === 0) {
+          return {
+            content: [{ type: 'text', text: 'No authors available yet' }],
+          };
+        }
+        const stats = await storage.getStats();
+        const formatted = authors
+          .map((author) => `• ${author} (${stats.authorCounts[author]} quotes)`)
+          .join('\n');
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Available authors:\n\n${formatted}`,
+            },
+          ],
+        };
+      }
+
+      case 'get_stats': {
+        const stats = await storage.getStats();
+        let result = `📊 Quote Collection Statistics\n\n`;
+        result += `Total Quotes: ${stats.totalQuotes}\n`;
+        result += `Favorites: ${stats.favoriteCount}\n\n`;
+
+        result += `Categories:\n`;
+        Object.entries(stats.categoryCounts)
+          .sort((a, b) => b[1] - a[1])
+          .forEach(([cat, count]) => {
+            result += `  • ${cat}: ${count}\n`;
+          });
+
+        result += `\nTop Authors:\n`;
+        Object.entries(stats.authorCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .forEach(([author, count]) => {
+            result += `  • ${author}: ${count}\n`;
+          });
+
+        return {
+          content: [{ type: 'text', text: result }],
         };
       }
 
@@ -202,7 +428,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const formatted = quotes
           .map(
             (q) =>
-              `[${q.id}${q.favorite ? ' ⭐' : ''}] "${q.text}"\n— ${q.author}, ${q.source} (Theme: ${q.theme})`
+              `[${q.id}${q.favorite ? ' ⭐' : ''}] "${q.text}"\n— ${q.author}, ${q.source}\nCategory: ${q.category} | Theme: ${q.theme}`
           )
           .join('\n\n');
         return {
@@ -221,7 +447,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           text: args.text as string,
           author: args.author as string,
           source: args.source as string,
+          category: args.category as string,
           theme: args.theme as string,
+          tags: (args.tags as string[]) || [],
           favorite: false,
           notes: null,
           createdAt: new Date().toISOString(),
@@ -231,7 +459,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           content: [
             {
               type: 'text',
-              text: `Quote added successfully!\n\nID: ${newQuote.id}\n"${newQuote.text}"\n— ${newQuote.author}`,
+              text: `Quote added successfully!\n\n${formatQuote(newQuote)}`,
             },
           ],
         };
@@ -244,8 +472,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             isError: true,
           };
         }
-        const quotes = await storage.searchQuotes({});
-        const quote = quotes.find((q) => q.id === Number(args.quote_id));
+        const quote = await storage.getQuoteById(Number(args.quote_id));
         if (!quote) {
           return {
             content: [{ type: 'text', text: `Quote with ID ${args.quote_id} not found` }],
@@ -256,7 +483,26 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           content: [
             {
               type: 'text',
-              text: `"${quote.text}"\n— ${quote.author}, ${quote.source}\n\n${explanation}`,
+              text: `"${quote.text}"\n— ${quote.author}, ${quote.source}\n\n📖 Explanation:\n\n${explanation}`,
+            },
+          ],
+        };
+      }
+
+      case 'generate_quote': {
+        if (!args) {
+          return {
+            content: [{ type: 'text', text: 'Missing required arguments' }],
+            isError: true,
+          };
+        }
+        const category = (args.category as string) || 'stoic';
+        const generatedText = await deepseek.generateQuote(args.theme as string, category);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Generated ${category} quote on "${args.theme}":\n\n"${generatedText}"\n\nWould you like to add this to your collection? Use add_quote if so.`,
             },
           ],
         };
@@ -293,7 +539,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         const formatted = favorites
-          .map((q) => `[${q.id}] "${q.text}"\n— ${q.author}, ${q.source}`)
+          .map((q) => `[${q.id}] "${q.text}"\n— ${q.author}, ${q.source}\nCategory: ${q.category}`)
           .join('\n\n');
         return {
           content: [{ type: 'text', text: `Your ${favorites.length} favorite quote(s):\n\n${formatted}` }],
@@ -343,24 +589,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      case 'generate_quote': {
-        if (!args) {
-          return {
-            content: [{ type: 'text', text: 'Missing required arguments' }],
-            isError: true,
-          };
-        }
-        const generatedText = await deepseek.generateQuote(args.theme as string);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Generated quote on "${args.theme}":\n\n"${generatedText}"\n\nWould you like to add this to your collection? Use add_quote if so.`,
-            },
-          ],
-        };
-      }
-
       default:
         return {
           content: [{ type: 'text', text: `Unknown tool: ${name}` }],
@@ -383,7 +611,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Stoic MCP Local Server running on stdio');
+  console.error('Wisdom MCP Local Server v2.0.0 running on stdio');
+  console.error('Supporting: Stoic, Mindfulness, Productivity, Self-Help, and Relationship wisdom');
 }
 
 main().catch((error) => {

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Model Context Protocol (MCP) server for delivering Stoic philosophy quotes with AI-powered explanations. Built as a demonstration project for O'Reilly Live Training, it showcases the architectural progression from local JSON storage to Azure Cosmos DB.
+This is a Model Context Protocol (MCP) server delivering wisdom from ancient Stoic philosophers and modern personal development authors, including Tara Brach, David Allen, Jen Sincero, Robert Glover, and Mark Manson. Built as a demonstration project for O'Reilly Live Training, it showcases MCP architecture, TypeScript development, and AI integration using the latest MCP SDK (v1.22.0).
 
 ## Repository Structure
 
@@ -48,9 +48,14 @@ The local implementation follows the Anthropic Model Context Protocol specificat
 
 ### Core Components
 
-**`local/src/index.ts`** - Main MCP server entrypoint
+**`local/src/index.ts`** - Main MCP server entrypoint (v2.0.0)
 - Initializes `QuoteStorage` and `DeepSeekService`
-- Registers 9 tools (get_random_quote, search_quotes, add_quote, get_quote_explanation, toggle_favorite, get_favorites, update_quote_notes, delete_quote, generate_quote)
+- Registers 16 tools covering discovery, search, management, and AI features
+- Core tools: get_random_quote, get_random_quote_by_category, get_random_quote_by_author, get_quote_by_id
+- Discovery: list_categories, list_authors, get_stats
+- Search: search_quotes (with category, theme, tags support)
+- Management: add_quote, toggle_favorite, get_favorites, update_quote_notes, delete_quote
+- AI: get_quote_explanation, generate_quote
 - Handles tool invocations via switch statement
 - Uses stdio transport for communication
 
@@ -58,17 +63,24 @@ The local implementation follows the Anthropic Model Context Protocol specificat
 - Manages `quotes.json` with read/write operations
 - Implements CRUD operations for quotes
 - Auto-generates incrementing IDs
-- Search/filter functionality by author, theme, or keyword
+- Advanced search/filter by author, category, theme, tags, or keyword
+- Analytics methods: getStats(), listCategories(), listAuthors()
+- Specialized retrieval: getRandomQuoteByCategory(), getRandomQuoteByAuthor()
+- Auto-maintains metadata (categories, authors lists)
 
 **`local/src/deepseek.ts`** - AI integration layer
 - Integrates DeepSeek API for quote explanations
-- Generates new Stoic-style quotes on demand
+- Category-aware prompting (Stoic, Mindfulness, Productivity, Self-Help, Relationships)
+- Generates quotes in different styles based on category
+- Context-specific explanations tailored to quote category
 - Requires `DEEPSEEK_API_KEY` environment variable
 
 **`local/src/types.ts`** - TypeScript interfaces
-- `Quote` interface with id, text, author, source, theme, favorite, notes
+- `Quote` interface with id, text, author, source, category, theme, tags, favorite, notes, createdAt, addedBy
 - `QuotesData` wrapper for the JSON structure
-- `SearchParams` for query parameters
+- `QuotesMetadata` with lastId, version, categories, authors tracking
+- `SearchParams` for query parameters (query, author, category, theme, tags)
+- `QuoteStats` for analytics data
 
 ### Data Flow
 
@@ -94,11 +106,14 @@ Add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "stoic-mcp": {
+    "wisdom-mcp": {
       "command": "node",
       "args": [
         "C:\\github\\stoic-mcp\\local\\dist\\index.js"
-      ]
+      ],
+      "env": {
+        "DEEPSEEK_API_KEY": "your-api-key-here"
+      }
     }
   }
 }
@@ -113,15 +128,17 @@ Notes:
 
 The local implementation uses `local/quotes.json` for persistence.
 
-### Schema v1.0.0
+### Schema v2.0.0
 
 Root structure:
 ```typescript
 {
   metadata: {
     lastId: number;        // Highest quote ID, used for ID generation
-    version: string;       // Schema version (currently "1.0.0")
+    version: string;       // Schema version (currently "2.0.0")
     lastModified: string;  // ISO timestamp, auto-updated on writes
+    categories: string[];  // Array of unique categories in collection
+    authors: string[];     // Array of unique authors in collection
   },
   quotes: Quote[]
 }
@@ -132,11 +149,23 @@ Each quote has:
 - `text`: Quote text
 - `author`: Author name
 - `source`: Source book/work
-- `theme`: Theme category (string)
+- `category`: Category (stoic | mindfulness | productivity | self-help | relationships)
+- `theme`: Specific theme within category (e.g., "courage", "awareness", "boundaries")
+- `tags`: Optional array of searchable tags (e.g., ["mindset", "strength", "power"])
 - `favorite`: Boolean flag
 - `notes`: Personal notes (string | null)
 - `createdAt`: ISO timestamp when quote was added
-- `addedBy`: Source of quote ("seed", "user", "manual")
+- `addedBy`: Source of quote ("seed", "user", "manual", "ai")
+
+### Categories
+
+The collection is organized into 5 main categories:
+
+- **stoic**: Ancient Stoic philosophers (Marcus Aurelius, Seneca, Epictetus)
+- **mindfulness**: Mindfulness and meditation teachers (Tara Brach)
+- **productivity**: Personal productivity experts (David Allen)
+- **self-help**: Self-empowerment and personal growth (Jen Sincero, Mark Manson)
+- **relationships**: Healthy relationships and boundaries (Robert Glover)
 
 ### Bulk Import Utility
 
@@ -144,13 +173,20 @@ The `import-quotes.ts` utility allows bulk importing quotes:
 - Source location: `local/quotes-source/` (all import files must be placed here)
 - Run with: `npm run import <filename.txt>`
 - Format: `"Quote text" - Author, Source` (one per line)
-- Auto-detects themes from keywords (18 theme categories)
+- Auto-detects category from author name
+- Auto-detects theme from quote content keywords
+- Auto-generates empty tags array (can be manually filled later)
 - Atomically appends to quotes.json
-- Updates metadata.lastId and metadata.lastModified
-- See `local/IMPORT_GUIDE.md` for full documentation
+- Updates metadata.lastId, lastModified, categories, and authors
 - Example: `npm run import sample-import.txt`
 
-The Azure implementation will migrate this to Cosmos DB with similar schema.
+## Package Information
+
+- **Name**: wisdom-mcp-local (v2.0.0)
+- **MCP SDK**: @modelcontextprotocol/sdk v1.22.0
+- **Node**: 18+
+- **TypeScript**: 5.3.3
+- **License**: MIT
 
 ## Module System
 

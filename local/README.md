@@ -1,251 +1,233 @@
-# Stoic MCP - Local Implementation
+# Wisdom MCP Server - Local Edition
 
-Local Node.js MCP server using JSON file storage for Stoic philosophy quotes. This implementation demonstrates the Model Context Protocol (MCP) specification with a complete, production-ready server.
+> A comprehensive Model Context Protocol (MCP) server delivering wisdom from ancient Stoic philosophers and modern personal development authors. Built for O'Reilly Live Training with educational depth and rich documentation.
 
-## Features
+## 🌟 Overview
 
-- ✅ **CRUD Operations**: Full create, read, update, delete support
-- 📝 **JSON Storage**: File-based persistence with metadata tracking
-- 🤖 **AI Integration**: DeepSeek-powered quote explanations and generation
-- ⭐ **Favorites**: Mark quotes that resonate
-- 🔍 **Search**: Filter by author, theme, or keywords
-- 📝 **Personal Notes**: Add personal reflections to quotes
-- 📥 **Bulk Import**: Import quotes from text files with automatic theme detection
+The Wisdom MCP Server provides Claude Desktop and other MCP clients with access to a curated collection of 75+ wisdom quotes from:
 
-## Prerequisites
+- **Stoic Philosophers**: Marcus Aurelius, Seneca, Epictetus
+- **Mindfulness Teachers**: Tara Brach
+- **Productivity Experts**: David Allen (Getting Things Done)
+- **Self-Help Authors**: Jen Sincero, Mark Manson
+- **Relationship Experts**: Robert Glover
+
+### Version 2.0.0 - What's New
+
+- ✅ **Latest MCP SDK** (v1.22.0) - Using cutting-edge protocol features
+- ✅ **5 Wisdom Categories** - Stoic, Mindfulness, Productivity, Self-Help, Relationships
+- ✅ **75+ Curated Quotes** - Hand-selected wisdom from 8 renowned authors
+- ✅ **16 MCP Tools** - Comprehensive quote management and exploration
+- ✅ **Smart AI Integration** - Context-aware explanations for each category
+- ✅ **Tags & Themes** - Enhanced searchability and organization
+- ✅ **Stats & Analytics** - Track your collection growth
+
+## 📚 Features
+
+### Core Capabilities
+
+1. **Random Quote Access**
+   - Get random quotes from any author
+   - Filter by category (stoic, mindfulness, productivity, self-help, relationships)
+   - Filter by specific author
+
+2. **Advanced Search**
+   - Full-text search across quote content
+   - Filter by category, theme, author, or tags
+   - Combine multiple search criteria
+
+3. **Collection Management**
+   - Add new quotes with full metadata
+   - Update personal notes on quotes
+   - Mark favorites
+   - Delete quotes
+   - Import quotes in bulk
+
+4. **AI-Powered Features** (requires DEEPSEEK_API_KEY)
+   - Get contextual explanations for any quote
+   - Generate new quotes on custom themes
+   - Category-specific AI prompting (e.g., Stoic vs. Mindfulness style)
+
+5. **Analytics & Discovery**
+   - View collection statistics
+   - Browse by category
+   - List all authors with quote counts
+   - Track favorites
+
+## 🚀 Quick Start
+
+### Prerequisites
 
 - Node.js 18+ and npm
-- DeepSeek API key from [platform.deepseek.com](https://platform.deepseek.com)
+- Claude Desktop (for MCP integration)
+- (Optional) DeepSeek API key for AI features
 
-## Quick Start
+### Installation
 
-### 1. Install Dependencies
-
-```bash
+\`\`\`bash
+# Navigate to the local directory
 cd local
+
+# Install dependencies
 npm install
-```
 
-### 2. Configure Environment
-
-Create `.env` file:
-
-```bash
-DEEPSEEK_API_KEY=your_key_here
-```
-
-### 3. Build and Run
-
-```bash
+# Build the project
 npm run build
+
+# Test the server
 npm start
-```
+\`\`\`
 
-### 4. Configure in Claude Desktop
+### Configure Claude Desktop
 
-Add to your Claude Desktop config:
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+Add to your \`claude_desktop_config.json\`:
 
-```json
+**macOS**: \`~/Library/Application Support/Claude/claude_desktop_config.json\`
+**Windows**: \`%APPDATA%\\Claude\\claude_desktop_config.json\`
+
+\`\`\`json
 {
   "mcpServers": {
-    "stoic-mcp": {
+    "wisdom-mcp": {
       "command": "node",
       "args": [
-        "C:\\github\\stoic-mcp\\local\\dist\\index.js"
-      ]
+        "/full/path/to/stoic-mcp/local/dist/index.js"
+      ],
+      "env": {
+        "DEEPSEEK_API_KEY": "your-api-key-here"
+      }
     }
   }
 }
-```
+\`\`\`
 
-**Notes:**
-- Update the path to match your installation location
-- Use double backslashes on Windows (e.g., `C:\\github\\...`)
-- DEEPSEEK_API_KEY is inherited from system environment variables
+**Note**: Replace \`/full/path/to/\` with your actual path. On Windows, use double backslashes or forward slashes.
 
-## Available Tools
+### Verify Installation
 
-### `get_random_quote`
-Get a random Stoic quote for inspiration.
+1. Restart Claude Desktop
+2. Look for the 🔨 hammer icon indicating MCP tools are available
+3. Try asking Claude: "Get me a random wisdom quote"
+4. You should see 16 tools available from the wisdom-mcp server
 
-**Example:** "I need some motivation"
+## 🛠️ Available MCP Tools
 
-### `search_quotes`
-Search by author, theme, or keyword.
+### Discovery & Browsing
 
-**Parameters:**
-- `query` (optional): Keyword search
-- `author` (optional): Filter by author
-- `theme` (optional): Filter by theme
+1. **\`get_random_quote\`**
+   - Get a random quote from the entire collection
+   - Perfect for daily inspiration
 
-**Example:** "Find quotes about courage by Marcus Aurelius"
+2. **\`get_random_quote_by_category\`**
+   - Parameters: \`category\` (stoic, mindfulness, productivity, self-help, relationships)
+   - Get category-specific wisdom
 
-### `add_quote`
-Add a new quote to the collection.
+3. **\`get_random_quote_by_author\`**
+   - Parameters: \`author\` (e.g., "Marcus Aurelius", "Tara Brach")
+   - Explore quotes from specific thinkers
 
-**Parameters:**
-- `text`: The quote text
-- `author`: Quote author
-- `source`: Source book/work
-- `theme`: Main theme
+4. **\`get_quote_by_id\`**
+   - Parameters: \`quote_id\`
+   - Retrieve a specific quote
 
-### `get_quote_explanation`
-Get AI-powered practical explanation.
+5. **\`list_categories\`**
+   - View all available categories with quote counts
 
-**Parameters:**
-- `quote_id`: ID of the quote
+6. **\`list_authors\`**
+   - View all authors with quote counts
 
-**Example:** "Explain quote 5 in terms of handling production incidents"
+7. **\`get_stats\`**
+   - Collection statistics: totals, categories, top authors, favorites
 
-### `toggle_favorite`
-Mark or unmark as favorite.
+### Search & Filter
 
-**Parameters:**
-- `quote_id`: ID of the quote
+8. **\`search_quotes\`**
+   - Parameters: \`query\`, \`author\`, \`category\`, \`theme\`, \`tags\`
+   - Powerful multi-criteria search
+   - Example: Find all productivity quotes about "focus"
 
-### `get_favorites`
-Retrieve all favorite quotes.
+### Personal Collection Management
 
-### `update_quote_notes`
-Add personal notes to a quote.
+9. **\`add_quote\`**
+   - Parameters: \`text\`, \`author\`, \`source\`, \`category\`, \`theme\`, \`tags\` (optional)
+   - Add quotes to your collection
 
-**Parameters:**
-- `quote_id`: ID of the quote
-- `notes`: Your reflection
+10. **\`toggle_favorite\`**
+    - Parameters: \`quote_id\`
+    - Mark/unmark quotes as favorites
 
-### `delete_quote`
-Remove a quote from the collection.
+11. **\`get_favorites\`**
+    - View all your favorite quotes
 
-**Parameters:**
-- `quote_id`: ID of the quote
+12. **\`update_quote_notes\`**
+    - Parameters: \`quote_id\`, \`notes\`
+    - Add personal reflections to quotes
 
-### `generate_quote`
-Use AI to generate new Stoic-style quote.
+13. **\`delete_quote\`**
+    - Parameters: \`quote_id\`
+    - Remove quotes from collection
 
-**Parameters:**
-- `theme`: Theme for generation (e.g., "debugging", "code review")
+### AI-Powered Features
 
-## Data Structure
+14. **\`get_quote_explanation\`**
+    - Parameters: \`quote_id\`
+    - Get AI-powered practical explanations
+    - Adapts to quote category (Stoic, Mindfulness, etc.)
 
-Quotes are stored in `quotes.json` with metadata tracking:
+15. **\`generate_quote\`**
+    - Parameters: \`theme\`, \`category\` (optional)
+    - Generate new quotes on custom themes
+    - Style adapts to category
 
-```json
+## 📖 Understanding the Data Model
+
+### Quote Schema
+
+\`\`\`typescript
 {
-  "metadata": {
-    "lastId": 25,
-    "version": "1.0.0",
-    "lastModified": "2025-10-23T19:58:03.584Z"
-  },
-  "quotes": [
-    {
-      "id": 1,
-      "text": "You have power over your mind - not outside events.",
-      "author": "Marcus Aurelius",
-      "source": "Meditations",
-      "theme": "control",
-      "favorite": false,
-      "notes": null,
-      "createdAt": "2025-10-23T19:44:31.298Z",
-      "addedBy": "seed"
-    }
-  ]
+  id: number;              // Auto-incrementing unique ID
+  text: string;            // The quote text
+  author: string;          // Author name
+  source: string;          // Book or work
+  category: string;        // stoic | mindfulness | productivity | self-help | relationships
+  theme: string;           // Specific theme (e.g., "courage", "awareness", "boundaries")
+  tags?: string[];         // Additional searchable tags
+  favorite: boolean;       // User favorite flag
+  notes: string | null;    // Personal notes
+  createdAt: string;       // ISO timestamp
+  addedBy: string;         // "seed" | "user" | "manual" | "ai"
 }
-```
+\`\`\`
 
-### Schema Details
+### Categories Explained
 
-**Metadata:**
-- `lastId`: Auto-incrementing ID counter for new quotes
-- `version`: Schema version (currently "1.0.0")
-- `lastModified`: ISO timestamp of last modification
+| Category | Focus | Example Authors |
+|----------|-------|----------------|
+| **stoic** | Ancient wisdom, control, virtue, resilience | Marcus Aurelius, Seneca, Epictetus |
+| **mindfulness** | Presence, acceptance, compassion | Tara Brach |
+| **productivity** | Systems, organization, stress-free productivity | David Allen |
+| **self-help** | Empowerment, mindset, personal growth | Jen Sincero, Mark Manson |
+| **relationships** | Boundaries, authenticity, healthy connections | Robert Glover |
 
-**Quote Properties:**
-- `id`: Numeric ID (auto-generated from metadata.lastId)
-- `text`: Quote text
-- `author`: Author name
-- `source`: Source book or work
-- `theme`: Theme category
-- `favorite`: Boolean favorite flag
-- `notes`: Personal notes (string | null)
-- `createdAt`: ISO timestamp when quote was added
-- `addedBy`: Source ("seed", "user", "manual")
+For complete documentation, examples, and development guides, see the full README in the repository.
 
-## Bulk Import
+## 🎓 Learning Resources
 
-Import multiple quotes from a text file:
+This project demonstrates key MCP concepts:
+- Server registration and capabilities
+- Tool definition with JSON Schema
+- Request handling patterns
+- Transport layer (stdio)
+- TypeScript best practices
+- Error handling strategies
 
-```bash
-npm run import <filename.txt>
-```
+## 📄 License
 
-**Format:** Place your import file in `local/quotes-source/` directory:
+MIT License - Free for educational and personal use
 
-```
-"Quote text here" - Author Name, Source Book
-"Another quote" - Author Name, Source Book
-```
+---
 
-**Features:**
-- Automatic theme detection from 18 predefined categories
-- Atomic file operations (all or nothing)
-- Metadata auto-updates (lastId and lastModified)
+**Built for O'Reilly Live Training**
+*Demonstrating MCP architecture, TypeScript development, and AI integration*
 
-See `local/IMPORT_GUIDE.md` for complete documentation.
-
-## Development
-
-```bash
-# Watch mode for development
-npm run watch
-
-# Development mode (build + run)
-npm run dev
-
-# Clean build artifacts
-npm run clean
-```
-
-## Architecture
-
-This implementation follows the official MCP specification:
-
-**Core Components:**
-- `src/index.ts` - MCP server entry point with tool registration
-- `src/storage.ts` - File-based storage layer with CRUD operations
-- `src/deepseek.ts` - AI integration for explanations and generation
-- `src/types.ts` - TypeScript interfaces for type safety
-
-**Communication:**
-- Uses `StdioServerTransport` for Claude Desktop integration
-- Handles `ListToolsRequestSchema` for tool discovery
-- Handles `CallToolRequestSchema` for tool execution
-
-**9 Available Tools:** get_random_quote, search_quotes, add_quote, get_quote_explanation, toggle_favorite, get_favorites, update_quote_notes, delete_quote, generate_quote
-
-## Troubleshooting
-
-**Issue:** "DEEPSEEK_API_KEY not set" warning
-
-**Solution:** Ensure your `.env` file exists and contains your API key, or set it as a system environment variable.
-
-**Issue:** Quotes not persisting
-
-**Solution:** Check file permissions on `quotes.json` and ensure the path is correct.
-
-**Issue:** Server not appearing in Claude Desktop
-
-**Solution:**
-- Verify the path in `claude_desktop_config.json` points to `dist/index.js`
-- Ensure you've run `npm run build` first
-- Restart Claude Desktop after config changes
-- Check Claude Desktop logs for error messages
-
-## Next Steps
-
-Ready to scale to Azure? Check out the [Azure implementation](../azure/README.md) using Cosmos DB.
-
-## License
-
-MIT - See root LICENSE file
+Version 2.0.0 | Node 18+ | MCP SDK 1.22.0

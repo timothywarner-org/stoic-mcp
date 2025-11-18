@@ -1,7 +1,7 @@
 {
-  "name": "stoic-mcp-local",
-  "version": "1.0.0",
-  "description": "Local MCP server for Stoic quotes with JSON storage",
+  "name": "wisdom-mcp-local",
+  "version": "2.0.0",
+  "description": "Local MCP server for wisdom quotes from Stoic philosophers and modern personal development authors",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "import": "npm run build && node dist/import-quotes.js"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.4"
+    "@modelcontextprotocol/sdk": "^1.22.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -23,6 +23,10 @@
     "mcp",
     "stoicism",
     "quotes",
+    "wisdom",
+    "mindfulness",
+    "productivity",
+    "personal-development",
     "local"
   ],
   "author": "Tim Warner",
