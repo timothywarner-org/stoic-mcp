@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "wisdom-mcp": {
+      "command": "node",
+      "args": [
+        "/REPLACE/WITH/FULL/PATH/TO/stoic-mcp/local/dist/index.js"
+      ],
+      "env": {
+        "DEEPSEEK_API_KEY": "your-deepseek-api-key-here"
+      }
+    }
+  }
+}
