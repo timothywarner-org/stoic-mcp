@@ -45,6 +45,26 @@ function detectTheme(text: string): string {
   return 'wisdom';
 }
 
+// Author to category mapping
+function detectCategory(author: string): string {
+  const authorLower = author.toLowerCase();
+
+  if (authorLower.includes('marcus aurelius') || authorLower.includes('seneca') || authorLower.includes('epictetus')) {
+    return 'stoic';
+  } else if (authorLower.includes('tara brach')) {
+    return 'mindfulness';
+  } else if (authorLower.includes('david allen')) {
+    return 'productivity';
+  } else if (authorLower.includes('jen sincero') || authorLower.includes('mark manson')) {
+    return 'self-help';
+  } else if (authorLower.includes('robert glover')) {
+    return 'relationships';
+  }
+
+  // Default to self-help for unknown authors
+  return 'self-help';
+}
+
 function parseQuoteLine(line: string): Omit<Quote, 'id' | 'favorite' | 'notes' | 'createdAt' | 'addedBy'> | null {
   // Expected format: "Quote text" - Author, Source
   const match = line.match(/^"([^"]+)"\s*-\s*([^,]+),\s*(.+)$/);
@@ -56,12 +76,15 @@ function parseQuoteLine(line: string): Omit<Quote, 'id' | 'favorite' | 'notes' |
 
   const [, text, author, source] = match;
   const theme = detectTheme(text);
+  const category = detectCategory(author);
 
   return {
     text: text.trim(),
     author: author.trim(),
     source: source.trim(),
-    theme
+    category,
+    theme,
+    tags: []  // Can be manually added later
   };
 }
 
